@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progress</title>
+
+<!-- Esto es lo que iOS usa para el ícono de la pantalla de inicio.
+     Apps Script no permite ponerlo, por eso existe esta página. -->
+<link rel="apple-touch-icon" href="icono-app-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icono-app-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icono-app-512.png">
+<meta name="apple-mobile-web-app-title" content="Progress">
+
+<!-- Android y escritorio -->
+<link rel="icon" type="image/png" href="icono-app-192.png">
+
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background: #16191D;
+    color: #DFE6EE;
+  }
+  .centro {
+    min-height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 28px 22px; text-align: center;
+  }
+  img.logo { width: 96px; height: 96px; border-radius: 22px; margin-bottom: 18px; }
+  h1 { font-size: 22px; margin: 0 0 6px; font-weight: 600; }
+  p.sub { font-size: 13.5px; color: #93A1B0; margin: 0 0 18px; line-height: 1.5; max-width: 320px; }
+  .estado { font-size: 13px; color: #93A1B0; min-height: 20px; }
+  button {
+    font-family: inherit; font-size: 15px; font-weight: 600;
+    border: none; border-radius: 10px;
+    padding: 13px 26px; cursor: pointer; margin-top: 14px;
+    background: #DFE6EE; color: #16191D;
+  }
+  button.fantasma {
+    background: transparent; color: #93A1B0;
+    border: 1px solid #333A42; font-weight: 500; font-size: 13.5px;
+    padding: 10px 18px;
+  }
+  .instrucciones {
+    margin-top: 26px; padding: 16px 18px;
+    background: #1D2126; border: 1px solid #2A3038; border-radius: 12px;
+    font-size: 13px; color: #A9B6C4; line-height: 1.65;
+    max-width: 330px; text-align: left;
+  }
+  .instrucciones b { color: #DFE6EE; }
+  .oculto { display: none; }
+</style>
+</head>
+<body>
+
+<div class="centro">
+  <img class="logo" src="icono-app-192.png" alt="Progress">
+  <h1>Progress</h1>
+  <p class="sub" id="sub">Abriendo tu entrenamiento...</p>
+
+  <div class="estado" id="estado"></div>
+
+  <button id="btnEntrar" class="oculto" onclick="entrar()">Entrar</button>
+  <button id="btnQuedarme" class="fantasma" onclick="quedarse()">Quedarme acá</button>
+
+  <div class="instrucciones oculto" id="instrucciones">
+    Para tenerlo como app en tu teléfono:<br><br>
+    <b>iPhone:</b> tocá el botón de compartir (el cuadrado con la flecha hacia arriba)
+    y elegí <b>Agregar a inicio</b>.<br><br>
+    <b>Android:</b> tocá el menú de tres puntos y elegí <b>Agregar a pantalla principal</b>.
+  </div>
+</div>
+
+<script>
+  // La app real, en Apps Script.
+  var APP_URL = 'https://script.google.com/macros/s/AKfycbyvIa-VQemiyvpDJlt-zrS0V1uiWChzrPqjmcQdWEmArvc0-P6_OqF6jaGX5nCKgjqnjg/exec';
+
+  var token = new URLSearchParams(window.location.search).get('t') || '';
+  var destino = token ? APP_URL + '?t=' + encodeURIComponent(token) : null;
+  var cuentaRegresiva = null;
+
+  function entrar() {
+    if (destino) window.location.replace(destino);
+  }
+
+  /** Corta el ingreso automático para que el alumno pueda agregar la página a su inicio. */
+  function quedarse() {
+    if (cuentaRegresiva) clearInterval(cuentaRegresiva);
+    document.getElementById('estado').textContent = '';
+    document.getElementById('sub').textContent = 'Agregá esta pantalla a tu teléfono.';
+    document.getElementById('btnQuedarme').classList.add('oculto');
+    document.getElementById('btnEntrar').classList.remove('oculto');
+    document.getElementById('instrucciones').classList.remove('oculto');
+  }
+
+  function iniciar() {
+    if (!destino) {
+      document.getElementById('sub').textContent =
+        'Este link no es válido o está incompleto. Pedile el link correcto a tu entrenador.';
+      document.getElementById('btnQuedarme').classList.add('oculto');
+      return;
+    }
+
+    var restante = 3;
+    var estado = document.getElementById('estado');
+    estado.textContent = 'Entrando en ' + restante + '...';
+
+    cuentaRegresiva = setInterval(function () {
+      restante--;
+      if (restante <= 0) {
+        clearInterval(cuentaRegresiva);
+        entrar();
+      } else {
+        estado.textContent = 'Entrando en ' + restante + '...';
+      }
+    }, 1000);
+  }
+
+  iniciar();
+</script>
+
+</body>
+</html>
