@@ -25,6 +25,16 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 
+<!-- La misma Inter que usa la app. Va con display=optional a propósito: si la
+     fuente no está en caché NO se cambia a mitad de la pantalla de carga, que
+     en un splash de un segundo se ve peor que no tenerla. Desde la segunda vez
+     sale en Inter, porque la app ya descargó ese mismo archivo. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=optional">
+
+<link rel="preload" as="image" href="icono-app-256.png">
+
 <style>
   * { box-sizing: border-box; }
 
@@ -34,7 +44,7 @@
     overflow: hidden;
     background: #14181D;
     color: #DFE6EE;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, Helvetica, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -96,16 +106,35 @@
   #splash.saliendo { opacity: 0; pointer-events: none; }
 
   .logo {
-    width: 88px; height: 88px;
-    border-radius: 20px;
+    width: 84px; height: 84px;
+    border-radius: 19px;
     display: block;
   }
 
+  /* Entrada corta: el contenido sube 6px y aparece. Sin esto el splash
+     "golpea" de una. 340ms, una sola vez. */
+  #splash > * { animation: entrar .34s ease-out both; }
+  #splash .marca { animation-delay: .05s; }
+  #splash .riel  { animation-delay: .1s; }
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #splash > * { animation: none; }
+    .riel i { animation-duration: 2.4s; }
+  }
+
+  /* Calcada de .marca-app de la app: mismo tamaño, peso, interletrado y
+     color. Así, cuando la pantalla de carga se va, la palabra no "salta". El
+     text-indent compensa el hueco que el letter-spacing deja después de la
+     última letra, si no la palabra queda corrida a la izquierda. */
   .marca {
     font-size: 15px;
-    font-weight: 600;
-    letter-spacing: .18em;
-    color: #DFE6EE;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-indent: .22em;
+    color: #A8B2C2;
     text-transform: uppercase;
   }
 
@@ -224,7 +253,7 @@
 <div id="zocalo"></div>
 
 <div id="splash">
-  <img class="logo" src="icono-app-192.png" alt="">
+  <img class="logo" src="icono-app-256.png" alt="" width="84" height="84">
   <div class="marca">Progress</div>
   <div class="riel" id="riel"><i></i></div>
   <div class="nota" id="nota"></div>
