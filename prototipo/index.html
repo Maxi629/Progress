@@ -312,8 +312,22 @@ button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; 
 }
 .v3 .dia:active { transform: scale(.985); background: var(--s2); }
 /* Jerarquía por profundidad: lo hecho RETROCEDE, lo pendiente avanza */
-.v3 .dia.hecho { --op: .58; opacity: .58; box-shadow: 0 1px 2px rgba(0,0,0,.4); }
-.v3 .dia.hecho .dia-titulo { color: #93A1B0; }
+/* Un día terminado no se "deshabilita": se hunde.
+   Transparentar la tarjeta entera apagaba también el tilde verde, que es
+   justamente el premio — de ahí la lectura de "esto está inactivo". Así que
+   retrocede por TONO (fondo más hondo, sin sombra, borde más apagado) y por
+   contraste de texto, y el badge se queda a pleno. La opacidad baja apenas,
+   solo para sacarle filo. */
+.v3 .dia.hecho {
+  --op: .92;
+  opacity: .92;
+  background: #141A20;
+  border-color: #1E262E;
+  box-shadow: none;
+}
+.v3 .dia.hecho .dia-titulo  { color: #93A1B0; font-weight: 500; }
+.v3 .dia.hecho .dia-series  { color: #6E7B89; }
+.v3 .dia.hecho .flecha      { color: #5E6A77; }
 .v3 .dia.hoy {
   background: linear-gradient(180deg, var(--s2), var(--s1));
   border-color: var(--borde-vivo);
@@ -394,7 +408,7 @@ button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; 
      el día pendiente de hoy tiene un filo azul por dentro sin correr ni un píxel; los badges
      dejan de ser manchas planas; todo responde al toque con <code>scale(0.97)</code>;
      y las tarjetas entran escalonadas en vez de aparecer de golpe.</p>
-  <p><b>Qué agrega la 3:</b> los días <b>ya finalizados retroceden</b> y los pendientes avanzan,
+  <p><b>Qué agrega la 3:</b> los días <b>ya finalizados se hunden</b> (fondo más hondo, sin sombra, título apagado &mdash; pero el tilde verde se queda a pleno) y los pendientes avanzan,
      así la pantalla te contesta sola "¿qué me falta?". Los botones secundarios se vuelven
      neutros para que el azul signifique una sola cosa. Y hay un brillo apenas perceptible en
      los bordes superiores, que es lo que da la sensación de material en vez de rectángulo.</p>
