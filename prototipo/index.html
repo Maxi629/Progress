@@ -245,8 +245,11 @@ button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; 
 .v2 .tab.activo { color: #E8EDF2; font-weight: 600; background: var(--s2); border-top-color: #D8A657; }
 
 /* Entrada escalonada: las tarjetas se presentan, no aparecen de golpe */
-.v2 .entra { animation: subir .42s var(--curva) both; }
-@keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.v2 .entra { animation: subir .42s var(--curva) backwards; }
+/* El `to` NO fija opacity:1: usa la variable de reposo de cada tarjeta. Si
+   fijara 1, con fill-mode esa animación le ganaría al `opacity` declarado y
+   los días finalizados nunca se apagarían. Pasó: fue un bug real. */
+@keyframes subir { from { opacity: 0; transform: translateY(10px); } to { opacity: var(--op, 1); transform: none; } }
 
 /* ===================================================================
    3 · PULIDO + CARÁCTER — lo de arriba, más jerarquía por profundidad
@@ -309,7 +312,7 @@ button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; 
 }
 .v3 .dia:active { transform: scale(.985); background: var(--s2); }
 /* Jerarquía por profundidad: lo hecho RETROCEDE, lo pendiente avanza */
-.v3 .dia.hecho { opacity: .58; box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.v3 .dia.hecho { --op: .58; opacity: .58; box-shadow: 0 1px 2px rgba(0,0,0,.4); }
 .v3 .dia.hecho .dia-titulo { color: #93A1B0; }
 .v3 .dia.hoy {
   background: linear-gradient(180deg, var(--s2), var(--s1));
@@ -328,7 +331,7 @@ button { font-family: inherit; font-weight: 600; cursor: pointer; border: none; 
            transition: transform .16s var(--curva), color .16s ease; }
 .v3 .tab:active { transform: scale(.94); }
 .v3 .tab.activo { color: #FFFFFF; font-weight: 600; background: var(--s2); border-top-color: #D8A657; }
-.v3 .entra { animation: subir .42s var(--curva) both; }
+.v3 .entra { animation: subir .42s var(--curva) backwards; }
 
 @media (prefers-reduced-motion: reduce) {
   .entra { animation: none !important; }
