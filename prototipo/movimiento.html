@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Progress — cosas que aparecen y desaparecen</title>
+<meta name="theme-color" content="#0F1317">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   PROTOTIPO 2 — lo que aparece y desaparece.
+
+   El prototipo anterior mostraba una pantalla quieta. Este muestra los
+   cinco momentos en los que algo entra o sale, que es el punto ciego
+   que aquel no podía mostrar.
+
+   El interruptor de arriba cambia entre "Hoy" (sin movimiento, como
+   está la app hoy) y "Propuesta". Los botones de abajo disparan cada
+   momento todas las veces que quieras: el movimiento se juzga
+   repitiéndolo, no viéndolo una vez.
+   =================================================================== */
+
+:root {
+  --s0: #0F1317; --s1: #181F26; --s2: #202933; --s3: #27323D;
+  --borde: #232C35; --borde-vivo: #3A4654;
+  --texto: #E8EDF2; --texto-medio: #8B98A5; --texto-tenue: #6B7885;
+  --azul: #4A90D9; --azul-claro: #8FBEEE;
+  --dorado: #D8A657; --verde: #76C99A;
+
+  /* La misma curva que en el otro prototipo */
+  --curva: cubic-bezier(.23, 1, .32, 1);
+  /* Curva con sobrepaso mínimo, solo para la celebración */
+  --curva-rebote: cubic-bezier(.34, 1.4, .64, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0; padding: 22px 16px 40px;
+  background: #0A0D10; color: var(--texto);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+}
+
+.marco { max-width: 460px; margin: 0 auto; }
+
+h1 { font-size: 18px; font-weight: 600; margin: 0 0 6px; }
+.bajada { font-size: 12.5px; color: var(--texto-medio); margin: 0 0 18px; line-height: 1.55; }
+.bajada b { color: var(--texto); font-weight: 600; }
+
+/* ---------- interruptor Hoy / Propuesta ---------- */
+.interruptor {
+  display: flex; gap: 4px; padding: 4px;
+  background: var(--s1); border: 1px solid var(--borde);
+  border-radius: 10px; margin-bottom: 14px;
+}
+.interruptor button {
+  flex: 1; font-family: inherit; font-size: 12.5px; font-weight: 600;
+  border: none; border-radius: 7px; padding: 9px; cursor: pointer;
+  background: transparent; color: var(--texto-medio);
+  transition: transform .16s var(--curva), background-color .16s ease, color .16s ease;
+}
+.interruptor button:active { transform: scale(.97); }
+.interruptor button.on { background: var(--s3); color: var(--texto); }
+
+/* ---------- el "teléfono" ---------- */
+.tel {
+  position: relative;
+  height: 430px;
+  border-radius: 18px;
+  border: 1px solid var(--borde);
+  background: var(--s0);
+  overflow: hidden;
+}
+
+.tel-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; position: relative;
+  background: linear-gradient(180deg, #1D252E, #181F26);
+  border-bottom: 1px solid var(--borde);
+}
+.av { width: 30px; height: 30px; border-radius: 50%; background: #394653;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: #DCE6F0; }
+.mk { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      font-size: 13px; font-weight: 700; letter-spacing: .22em; text-indent: .22em;
+      color: #9DAABB; pointer-events: none; }
+
+/* El chip de racha, con el pulso de subida de escalón */
+.chip {
+  position: relative; flex-shrink: 0;
+  padding: 5px 12px; border-radius: 999px;
+  background: linear-gradient(145deg, #3B2D18, #2A2111);
+  border: 1px solid #A8854E; color: #D9B274;
+  font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+  display: flex; align-items: center; gap: 5px;
+}
+.chip svg { width: 12px; height: 12px; }
+.chip.nivel4 {
+  background: linear-gradient(145deg, #574120, #3A2C14);
+  border-color: #F0C070; color: #FFDFA0;
+  box-shadow: 0 0 16px rgba(240,192,112,.3);
+}
+/* El pulso es un aro que escala y se desvanece: solo transform y opacity,
+   nunca animando el box-shadow, que es caro. */
+.chip::after {
+  content: ''; position: absolute; inset: -1px;
+  border-radius: 999px; border: 1px solid #F0C070;
+  opacity: 0; pointer-events: none;
+}
+.mov .chip.pulsa::after { animation: pulso .55s var(--curva) 1; }
+@keyframes pulso {
+  from { opacity: .9; transform: scale(1); }
+  to   { opacity: 0;  transform: scale(1.45); }
+}
+
+.tel-cuerpo { padding: 14px; }
+.tel-cuerpo .t { font-size: 17px; font-weight: 600; color: var(--texto); margin-bottom: 3px; }
+.tel-cuerpo .s { font-size: 12px; color: var(--texto-medio); line-height: 1.5; }
+.fantasma { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.fantasma div { height: 46px; border-radius: 14px; background: var(--s1); border: 1px solid var(--borde); }
+
+/* =================== 2 · CARTEL DE RÉCORD =================== */
+.toast {
+  position: absolute; left: 50%; bottom: 18px; z-index: 40;
+  max-width: 86%; padding: 10px 18px;
+  background: var(--s3); border: 2px solid var(--dorado);
+  color: #F2E3C6; border-radius: 999px;
+  font-size: 13px; font-weight: 600; text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,.55);
+
+  /* OJO: el centrado ya usa translateX(-50%). Si se anima el transform sin
+     componer ese -50%, el cartel se va al costado de la pantalla. Es el
+     error clásico de este patrón. */
+  transform: translate(-50%, 120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.toast.visible { transform: translate(-50%, 0); opacity: 1; }
+/* Entra en 300 y sale en 200: lento donde el usuario mira, rápido al irse */
+.mov .toast { transition: transform .2s var(--curva), opacity .2s ease; }
+.mov .toast.visible { transition: transform .3s var(--curva), opacity .3s ease; }
+
+/* =================== 3 · CRONÓMETRO =================== */
+.crono {
+  position: absolute; left: 50%; bottom: 18px; z-index: 30;
+  display: flex; align-items: center; gap: 14px;
+  min-width: 215px; padding: 8px 10px 8px 16px;
+  background: var(--s2); border: 1px solid var(--borde-vivo);
+  border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  transform: translate(-50%, 120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.crono.visible { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+/* Más corto que el cartel: se ve muchas veces por sesión */
+.mov .crono { transition: transform .14s var(--curva), opacity .14s ease; }
+.mov .crono.visible { transition: transform .18s var(--curva), opacity .18s ease; }
+.crono .lb { font-size: 10px; color: var(--texto-medio); letter-spacing: .05em; text-transform: uppercase; }
+.crono .tm { font-size: 19px; font-weight: 600; color: var(--azul-claro); font-variant-numeric: tabular-nums; }
+.crono .bt {
+  width: 28px; height: 28px; padding: 0; border-radius: 50%;
+  background: transparent; border: 1px solid var(--borde-vivo);
+  color: #C9D6E2; font-size: 11px; cursor: pointer; font-family: inherit;
+  transition: transform .16s var(--curva), background-color .16s ease;
+}
+.crono .bt:active { transform: scale(.9); }
+
+/* =================== 4 · MODAL DE NOVEDADES =================== */
+.modal-fondo {
+  position: absolute; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+  background: rgba(8,11,15,.78);
+  opacity: 0; pointer-events: none;
+}
+.modal-fondo.visible { opacity: 1; pointer-events: auto; }
+.mov .modal-fondo { transition: opacity .2s ease; }
+
+.modal-caja {
+  width: 100%; max-width: 330px; padding: 18px;
+  background: var(--s1); border: 1px solid var(--borde-vivo);
+  border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,.6);
+  /* Un modal NO se ancla a un disparador: escala desde su centro. */
+  transform: scale(.96); opacity: 0;
+}
+.modal-fondo.visible .modal-caja { transform: scale(1); opacity: 1; }
+.mov .modal-caja { transition: transform .22s var(--curva), opacity .22s ease; }
+.modal-caja .mt { font-size: 15px; font-weight: 600; color: var(--texto); margin-bottom: 10px; }
+.modal-caja .mi { padding: 9px 0; border-bottom: 1px solid var(--borde); }
+.modal-caja .mi:last-of-type { border-bottom: none; }
+.modal-caja .mi b { font-size: 12.5px; font-weight: 600; color: var(--texto); display: block; }
+.modal-caja .mi span { font-size: 11.5px; color: var(--texto-medio); line-height: 1.5; }
+.modal-caja .cerrar {
+  width: 100%; margin-top: 12px; padding: 10px;
+  border: none; border-radius: 9px; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600; background: var(--azul); color: #0F1723;
+  transition: transform .16s var(--curva);
+}
+.modal-caja .cerrar:active { transform: scale(.97); }
+
+/* =================== 5 · CIERRE DE SESIÓN =================== */
+.cierre {
+  position: absolute; left: 50%; bottom: 18px; z-index: 50;
+  width: 84%; padding: 14px 16px;
+  background: linear-gradient(180deg, #2A2111, #1E180C);
+  border: 1px solid var(--dorado); border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.6);
+  transform: translate(-50%, 120%); opacity: 0; pointer-events: none;
+}
+.cierre.visible { transform: translate(-50%, 0); opacity: 1; }
+/* Acá sí se puede pasar de 300ms y usar un sobrepaso mínimo: pasa 3 o 4
+   veces por semana y es el momento más emocional de la app. */
+.mov .cierre { transition: transform .22s var(--curva), opacity .22s ease; }
+.mov .cierre.visible { transition: transform .44s var(--curva-rebote), opacity .3s ease; }
+
+.cierre .ct { font-size: 14px; font-weight: 600; color: #F2E3C6; }
+.cierre .cd { font-size: 11.5px; color: #C9D6E2; margin-top: 2px; }
+.cierre .cbf { margin-top: 10px; height: 6px; border-radius: 999px; background: rgba(0,0,0,.45); overflow: hidden; }
+.cierre .cbr { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #C9A360, #F0C070);
+                transform-origin: left center; transform: scaleX(0); }
+.mov .cierre.visible .cbr { transition: transform .7s var(--curva) .12s; }
+.cierre.visible .cbr { transform: scaleX(1); }
+.cierre .cr {
+  margin-top: 10px; display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; color: #FFDFA0; font-weight: 600;
+}
+.cierre .cr svg { width: 14px; height: 14px; }
+.cierre .cr .n { font-variant-numeric: tabular-nums; }
+
+/* Los hijos entran escalonados, no todos juntos */
+.mov .cierre.visible .ct  { animation: subir .3s var(--curva) .08s backwards; }
+.mov .cierre.visible .cd  { animation: subir .3s var(--curva) .14s backwards; }
+.mov .cierre.visible .cr  { animation: subir .3s var(--curva) .30s backwards; }
+@keyframes subir { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- disparadores ---------- */
+.disparos { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.disparos button {
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  padding: 11px 10px; border-radius: 10px; cursor: pointer;
+  background: var(--s2); color: #C6D2DF; border: 1px solid var(--borde-vivo);
+  transition: transform .16s var(--curva), background-color .16s ease;
+}
+.disparos button:active { transform: scale(.96); background: var(--s3); }
+.disparos button.ancho { grid-column: 1 / -1; }
+
+.nota { margin-top: 16px; font-size: 12px; color: var(--texto-medio); line-height: 1.65; }
+.nota b { color: var(--texto); font-weight: 600; }
+.nota + .nota { margin-top: 9px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mov .toast, .mov .crono, .mov .cierre, .mov .modal-caja {
+    transition-property: opacity !important;
+  }
+  .mov .cierre.visible .ct, .mov .cierre.visible .cd, .mov .cierre.visible .cr,
+  .mov .chip.pulsa::after { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="marco">
+  <h1>Lo que aparece y desaparece</h1>
+  <p class="bajada">Los cinco momentos que el prototipo anterior no podía mostrar, porque era una
+     pantalla quieta. <b>Disparalos las veces que quieras</b> y cambiá el interruptor para
+     compararlos con cómo salen hoy. El movimiento se juzga repitiéndolo.</p>
+
+  <div class="interruptor">
+    <button type="button" id="btnHoy">Hoy &mdash; sin movimiento</button>
+    <button type="button" id="btnProp" class="on">Propuesta</button>
+  </div>
+
+  <div class="tel mov" id="tel">
+    <div class="tel-top">
+      <div class="av">M</div>
+      <div class="mk">PROGRESS</div>
+      <div class="chip" id="chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2.8c.6 3.2-1 4.8-2.5 6.2C8 10.4 7 12 7 14a5 5 0 0 0 10 0c0-1.8-.8-3.3-1.9-4.4-.4 1.2-1.2 1.9-2.2 2.1 1.2-2.6 1-6-.9-8.9z"/>
+        </svg>
+        <span id="chipN">11</span>
+      </div>
+    </div>
+
+    <div class="tel-cuerpo">
+      <div class="t">Rutina actual</div>
+      <div class="s">Cargá tus series a medida que entren&aacute;s.</div>
+      <div class="fantasma"><div></div><div></div><div></div></div>
+    </div>
+
+    <!-- 2 -->
+    <div class="toast" id="toast">&#127942; &iexcl;R&eacute;cord en Press de banca! 72 kg &times; 6</div>
+
+    <!-- 3 -->
+    <div class="crono" id="crono">
+      <div>
+        <div class="lb">Descanso</div>
+        <div class="tm" id="cronoTm">2:00</div>
+      </div>
+      <button type="button" class="bt" id="cronoX">&times;</button>
+    </div>
+
+    <!-- 5 -->
+    <div class="cierre" id="cierre">
+      <div class="ct">&iexcl;D&iacute;a 2 terminado!</div>
+      <div class="cd">18 series cargadas &middot; 4 de 6 d&iacute;as de la semana</div>
+      <div class="cbf"><div class="cbr"></div></div>
+      <div class="cr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2.8c.6 3.2-1 4.8-2.5 6.2C8 10.4 7 12 7 14a5 5 0 0 0 10 0c0-1.8-.8-3.3-1.9-4.4-.4 1.2-1.2 1.9-2.2 2.1 1.2-2.6 1-6-.9-8.9z"/>
+        </svg>
+        <span><span class="n" id="cierreN">0</span> sesiones seguidas</span>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="modal-fondo" id="modal">
+      <div class="modal-caja">
+        <div class="mt">Novedades</div>
+        <div class="mi"><b>Cron&oacute;metro de descanso</b><span>Activalo desde Mi perfil. Arranca solo al terminar cada serie.</span></div>
+        <div class="mi"><b>Tus objetivos</b><span>Ahora ves el avance de todos tus objetivos a la vez.</span></div>
+        <button type="button" class="cerrar" id="modalX">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="disparos">
+    <button type="button" id="dRecord">2 &middot; Cartel de r&eacute;cord</button>
+    <button type="button" id="dCrono">3 &middot; Cron&oacute;metro</button>
+    <button type="button" id="dModal">4 &middot; Novedades</button>
+    <button type="button" id="dRacha">6 &middot; Subir escal&oacute;n</button>
+    <button type="button" id="dCierre" class="ancho">5 &middot; Cierre de sesi&oacute;n (la celebraci&oacute;n)</button>
+  </div>
+
+  <p class="nota"><b>Qué comparar con el interruptor:</b> en &laquo;Hoy&raquo; todo salta a la pantalla y
+     desaparece de golpe, que es literalmente lo que hace la app: una clase <code>.oculto</code> con
+     <code>display:none</code>. En &laquo;Propuesta&raquo; el cartel, el cronómetro y la celebración
+     entran y salen <b>por el mismo borde de abajo</b>: una sola regla, y por eso se aprende sin
+     pensarla.</p>
+  <p class="nota"><b>Mirá que entran más lento de lo que salen</b> (300 ms contra 200). Es a propósito:
+     lento donde estás mirando, rápido cuando el sistema ya respondió.</p>
+  <p class="nota"><b>El cierre de sesión es el único con rebote</b>, y la racha cuenta hacia arriba en vez
+     de aparecer. Pasa tres o cuatro veces por semana: es el único lugar donde gastar presupuesto de
+     celebración sin que moleste.</p>
+  <p class="nota"><b>El cronómetro es el más corto de todos</b> (180 ms), porque lo vas a ver muchas veces
+     por sesión. A esa frecuencia, el movimiento tiene que ser casi imperceptible.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var tel    = document.getElementById('tel');
+  var toast  = document.getElementById('toast');
+  var crono  = document.getElementById('crono');
+  var modal  = document.getElementById('modal');
+  var cierre = document.getElementById('cierre');
+  var chip   = document.getElementById('chip');
+
+  var timers = {};
+
+  function mostrar(el, ms) {
+    clearTimeout(timers[el.id]);
+    el.classList.add('visible');
+    if (ms) timers[el.id] = setTimeout(function () { el.classList.remove('visible'); }, ms);
+  }
+
+  // ---- interruptor -------------------------------------------------
+  var bHoy = document.getElementById('btnHoy');
+  var bProp = document.getElementById('btnProp');
+
+  function modo(conMovimiento) {
+    tel.classList.toggle('mov', conMovimiento);
+    bProp.classList.toggle('on', conMovimiento);
+    bHoy.classList.toggle('on', !conMovimiento);
+  }
+  bHoy.addEventListener('click', function () { modo(false); });
+  bProp.addEventListener('click', function () { modo(true); });
+
+  // ---- 2 · cartel de récord ---------------------------------------
+  document.getElementById('dRecord').addEventListener('click', function () {
+    mostrar(toast, 3200);
+  });
+
+  // ---- 3 · cronómetro ---------------------------------------------
+  var cuenta = null;
+  document.getElementById('dCrono').addEventListener('click', function () {
+    if (crono.classList.contains('visible')) { pararCrono(); return; }
+    var restante = 120;
+    document.getElementById('cronoTm').textContent = '2:00';
+    mostrar(crono);
+    clearInterval(cuenta);
+    cuenta = setInterval(function () {
+      restante--;
+      var m = Math.floor(restante / 60), s = restante % 60;
+      document.getElementById('cronoTm').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (restante <= 0) pararCrono();
+    }, 1000);
+  });
+  function pararCrono() {
+    clearInterval(cuenta);
+    crono.classList.remove('visible');
+  }
+  document.getElementById('cronoX').addEventListener('click', pararCrono);
+
+  // ---- 4 · modal ---------------------------------------------------
+  document.getElementById('dModal').addEventListener('click', function () { mostrar(modal); });
+  document.getElementById('modalX').addEventListener('click', function () { modal.classList.remove('visible'); });
+
+  // ---- 5 · cierre de sesión ---------------------------------------
+  document.getElementById('dCierre').addEventListener('click', function () {
+    var n = document.getElementById('cierreN');
+    n.textContent = '0';
+    cierre.classList.remove('visible');
+
+    // Forzar reflow para que al repetirlo vuelva a animar desde cero.
+    void cierre.offsetWidth;
+    mostrar(cierre, 5200);
+
+    // La racha cuenta hacia arriba: es el dato que llega del servidor
+    // después, así que verlo subir cuenta la historia correcta.
+    if (!tel.classList.contains('mov')) { n.textContent = '12'; return; }
+    var desde = performance.now(), dur = 700, fin = 12;
+    requestAnimationFrame(function paso(t) {
+      var p = Math.min((t - desde) / dur, 1);
+      n.textContent = Math.round((1 - Math.pow(1 - p, 3)) * fin);
+      if (p < 1) requestAnimationFrame(paso);
+    });
+  });
+
+  // ---- 6 · subir escalón de racha ---------------------------------
+  document.getElementById('dRacha').addEventListener('click', function () {
+    var n = document.getElementById('chipN');
+    chip.classList.remove('nivel4', 'pulsa');
+    n.textContent = '11';
+    void chip.offsetWidth;
+    setTimeout(function () {
+      n.textContent = '12';
+      chip.classList.add('nivel4', 'pulsa');
+    }, 150);
+  });
+})();
+</script>
+
+</body>
+</html>
