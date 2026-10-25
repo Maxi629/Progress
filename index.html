@@ -48,14 +48,20 @@
        app nunca termina debajo de la isla dinámica; si iOS ya reservó la
        franja el valor es 0 y no cambia nada. */
     top: env(safe-area-inset-top, 0px);
-    left: 0; right: 0;
-    /* Se corta antes de la barra blanca del home de iOS. Tiene que ser acá y
-       no en la app: env(safe-area-inset-*) vale 0 adentro de un iframe,
-       iOS solo le da los márgenes seguros al documento de más arriba. Sin
-       esto, la barra de navegación de la app queda tapada por el indicador
-       de inicio. */
-    bottom: env(safe-area-inset-bottom, 0px);
+    left: 0;
     width: 100%;
+
+    /* La altura va CALCULADA, no con top + bottom.
+       Un <iframe> es un elemento reemplazado: sin un `height` explícito el
+       navegador usa su altura intrínseca de 150px e ignora el `bottom`, y la
+       app queda aplastada en una franja arriba de la pantalla.
+       Los dos descuentos son los márgenes seguros de iOS: arriba el status
+       bar, abajo la barra blanca del indicador de inicio, que si no tapaba
+       la barra de navegación de la app. Tiene que ser acá y no adentro de la
+       app, porque env(safe-area-inset-*) vale 0 dentro de un iframe: iOS
+       solo le da los márgenes seguros al documento de más arriba. */
+    height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+
     border: 0;
     display: block;
     opacity: 0;
