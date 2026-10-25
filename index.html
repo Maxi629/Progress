@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Progress</title>
-<meta name="theme-color" content="#16191D">
+<!-- Es el color con el que iOS pinta la franja del status bar en pantalla
+     completa. Va igual que el encabezado de la app (--superficie, #1C2229)
+     para que no se vea el corte entre una cosa y la otra. -->
+<meta name="theme-color" content="#1C2229">
 
 <!-- Esta página existe por dos cosas que Apps Script no deja hacer:
      1. El ícono de la pantalla de inicio en iOS, que sale de apple-touch-icon.
@@ -29,7 +32,7 @@
     margin: 0; padding: 0;
     height: 100%; width: 100%;
     overflow: hidden;
-    background: #16191D;
+    background: #14181D;
     color: #DFE6EE;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
@@ -40,14 +43,37 @@
      barras de scroll, una adentro y otra afuera. */
   #marco {
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%; height: 100%;
+    /* Arriba pasa lo mismo que abajo: según cómo iOS trate el status bar, la
+       franja puede quedar reservada o no. Con el inset, el encabezado de la
+       app nunca termina debajo de la isla dinámica; si iOS ya reservó la
+       franja el valor es 0 y no cambia nada. */
+    top: env(safe-area-inset-top, 0px);
+    left: 0; right: 0;
+    /* Se corta antes de la barra blanca del home de iOS. Tiene que ser acá y
+       no en la app: env(safe-area-inset-*) vale 0 adentro de un iframe,
+       iOS solo le da los márgenes seguros al documento de más arriba. Sin
+       esto, la barra de navegación de la app queda tapada por el indicador
+       de inicio. */
+    bottom: env(safe-area-inset-bottom, 0px);
+    width: 100%;
     border: 0;
     display: block;
     opacity: 0;
     transition: opacity .25s ease;
   }
   #marco.visible { opacity: 1; }
+
+  /* La franja que queda debajo del iframe. Del color de la barra inferior de
+     la app (--superficie) para que se lea como su continuación y no como un
+     recorte. */
+  #zocalo, #capitel {
+    position: fixed;
+    left: 0; right: 0;
+    background: #1C2229;
+    pointer-events: none;
+  }
+  #zocalo  { bottom: 0; height: env(safe-area-inset-bottom, 0px); }
+  #capitel { top: 0;    height: env(safe-area-inset-top, 0px); }
 
   /* ---------- Pantalla de carga ---------- */
 
@@ -56,7 +82,7 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 18px;
-    background: #16191D;
+    background: #14181D;
     padding: 28px 22px;
     text-align: center;
     transition: opacity .25s ease;
@@ -188,6 +214,8 @@
 <body>
 
 <iframe id="marco" title="Progress" allow="clipboard-write"></iframe>
+<div id="capitel"></div>
+<div id="zocalo"></div>
 
 <div id="splash">
   <img class="logo" src="icono-app-192.png" alt="">
